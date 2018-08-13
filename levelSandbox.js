@@ -15,13 +15,18 @@ const addLevelDBData =  (key,value) =>{
 
 // Get data from levelDB with key
  const getLevelDBData = (key)=>{
-  /* db.get(key, function(err, value) {
-    if (err) return console.log('Not found!', err);
-    //console.log(key, " == " ,value);
-    var myvalue = JSON.parse(value);
-    console.log("myvalue ",myvalue.hash);
-  }) */
-  
+    return new Promise(function(resolve,reject){
+        db.get(key, function(err, value) {
+            if (err) {
+                console.log('Not found!', err);
+                reject(err);
+            }
+            //console.log(key, " == " ,value);
+            var myvalue = JSON.parse(value);
+            //console.log("myvalue ",myvalue.hash);
+            resolve(myvalue);
+        }) 
+    });
 };
 
 //https://github.com/Level/level#put
@@ -34,18 +39,17 @@ const addLevelDBData =  (key,value) =>{
         }).on('error', function(err) {
             return console.log('Unable to read data stream!', err)
         }).on('close', function() {
-          console.log('Block #' + i);
-          console.log("value ",value)
+         // console.log('Block #' + i);
+          //console.log("value ",value)
           addLevelDBData(i, value);
         });
 };
 
 const getBlockChainLength = ()=>{
-    
     return new Promise(function(resolve,reject){
         var length = 0;
         db.createReadStream({ keys: true, values: true }).on('data', function(data) {
-            console.log("data ",data);
+           // console.log("data ",data);
             length++;
         }).on('error', function(err) {
             //console.log('Unable to read data stream!', err)
@@ -55,15 +59,42 @@ const getBlockChainLength = ()=>{
             resolve(length);
         });
     });
-    
-
 };
-var getLength = async ()=>{
-    var length = await getBlockChainLength();
-    console.log("length ",length)
-
-    getLevelDBData(length-1)
+var printAllBlocks = async ()=>{
+    return new Promise(function(resolve,reject){
+        console.log("in printAllBlocks()")
+        db.createReadStream({ keys: true, values: true }).on('data', function(data) {
+            console.log("data ",data);
+        }).on('error', function(err) {
+            //console.log('Unable to read data stream!', err)
+            reject(err)
+        }).on('close', function() {
+            resolve("")
+        });
+    });
 }
-//getLength()
-//console.log("ee ",getLength())
-module.exports = {addLevelDBData,getLevelDBData,addDataToLevelDB,getBlockChainLength};
+printAllBlocks().then(()=>console.log("s"))
+
+//input blockheight
+var getBlockUsingHeight = (blockheight)=>{
+    return new Promise(function(resolve,reject){
+        console.log("in getBlock(blockheight)")
+        var exactBlock = null;
+        db.createReadStream({ keys: true, values: true }).on('data', function(data) {
+           // console.log("data ",data);
+            var myvalue = JSON.parse(data.value);
+            if(blockheight == myvalue.height){
+                exactBlock = myvalue;
+                return;
+            }
+        }).on('error', function(err) {
+            //console.log('Unable to read data stream!', err)
+            reject(err)
+        }).on('close', function() {
+            //console.log("exactBlock ",exactBlock)
+            resolve(exactBlock)
+        });
+    });
+};
+
+module.exports = {addLevelDBData,getLevelDBData,addDataToLevelDB,getBlockChainLength,getBlockUsingHeight};
