@@ -73,7 +73,7 @@ var printAllBlocks = async ()=>{
         });
     });
 }
-printAllBlocks().then(()=>console.log("s"))
+//printAllBlocks().then(()=>console.log(""))
 
 //input blockheight
 var getBlockUsingHeight = (blockheight)=>{
@@ -97,4 +97,4 @@ var getBlockUsingHeight = (blockheight)=>{
     });
 };
 
-module.exports = {addLevelDBData,getLevelDBData,addDataToLevelDB,getBlockChainLength,getBlockUsingHeight};
+module.exports = {addLevelDBData,getLevelDBData,addDataToLevelDB,getBlockChainLength,getBlockUsingHeight,printAllBlocks};

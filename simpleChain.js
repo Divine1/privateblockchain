@@ -1,7 +1,7 @@
 const SHA256 = require("crypto-js/sha256")
 var Promise = require('bluebird');
 
-const {addLevelDBData,getLevelDBData,addDataToLevelDB,getBlockChainLength,getBlockUsingHeight} =require("./levelSandbox");
+const {addLevelDBData,getLevelDBData,addDataToLevelDB,getBlockChainLength,getBlockUsingHeight,printAllBlocks} =require("./levelSandbox");
 
 class Block{
   constructor(data){
@@ -14,11 +14,22 @@ class Block{
 }
 
 class Blockchain{
-	constructor(){
+	  constructor(){
     	this.chain = [];
         //this.addBlock(new Block("first block"));
-      this.addBlock(new Block("fifth block"));
+      this.genesisBlock(new Block("first block"));
     }
+   async genesisBlock(genesisBlock){
+    let chainLength = await getBlockChainLength();
+    console.log("genesisblock chainLength ",chainLength)
+    if(chainLength == 0){
+      
+      this.addBlock(genesisBlock);
+    }
+    else{
+      console.log("genesis block already exists")
+    }
+   }
     
     async addBlock(newBlock){
         
@@ -103,3 +114,5 @@ class Blockchain{
 
 }
 
+new Blockchain()
+printAllBlocks().then(()=>console.log(""))
